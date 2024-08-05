@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <h2>Add Car</h2>
+    <form id="addCarForm">
+        <input type="text" id="carName" placeholder="Car Name" required>
+        <input type="number" id="carYear" placeholder="Year" required>
+        <input type="number" id="carPrice" placeholder="Price" required>
+        <button type="submit">Add Car</button>
+    </form>
+
+<h2>View Cars</h2>
+    <table id="carsTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    
+    <script>
+        const getCarsUrl = 'https://ap-south-1.aws.data.mongodb-api.com/app/application-1-zuqzzgn/endpoint/viewCars';
+        const addCarUrl = 'https://ap-south-1.aws.data.mongodb-api.com/app/application-1-zuqzzgn/endpoint/addCar';
+        const delCarUrl = 'https://ap-south-1.aws.data.mongodb-api.com/app/application-1-zuqzzgn/endpoint/delCar';
+
+        // Fetch and display cars
+        async function fetchCars() {
+            const response = await fetch(getCarsUrl);
+            const cars = await response.json();
+            const tableBody = document.querySelector('#carsTable tbody');
+            tableBody.innerHTML = '';
+            cars.forEach(car => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${car.name}</td>
+                    <td>${car.year}</td>
+                    <td>${car.price} INR</td>
+                    <td>
+                        <button data-car-name="${car.name}" onclick="deleteCar('${car.name}', this)">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Add car
+        document.getElementById('addCarForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const name = document.getElementById('carName').value;
+            const year = document.getElementById('carYear').value;
+            const price = document.getElementById('carPrice').value;
+            await fetch(addCarUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, Year: year, Price: price })
+            });
+            document.getElementById('carName').value = '';
+            document.getElementById('carYear').value = '';
+            document.getElementById('carPrice').value = '';
+            fetchCars();
+        });
+
+        // Delete car
+        async function deleteCar(name, button) {
+            await fetch(delCarUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            // Remove the respective row from the table
+            button.closest('tr').remove();
+        }
+
+        // Initial fetch of cars
+        fetchCars();
+    </script>
+</body>
+</html>
