@@ -31,9 +31,9 @@
             cars.forEach(car => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${car.name}</td>
-                    <td>${car.year}</td>
-                    <td>$${car.price}</td>
+                    <td>${car.name} INR</td>
+                    <td>${car.year} INR</td>
+                    <td>${car.price} INR</td>
                 `;
                 tableBody.appendChild(row);
             });
